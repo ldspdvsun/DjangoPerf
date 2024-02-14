@@ -1,0 +1,43 @@
+pthread_suspend suspend failed: ESRCH
+pthread_suspend suspend failed: EINVAL
+pthread_resume resume failed: ESRCH
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+Test Result:1.2112ms
+!!! RESULT: Test Case 1005:AS0100505GN_1 FAIL !!!
+
+
+
+Test Case 5054:AS0100505GN_2 starting ...!
+Timed mutex lock will block for 3 seconds starting from: 567993616.1
+Timed mutex lock will block for 3 seconds starting from: 567993616.22
+Timed mutex lock will block for 3 seconds starting from: 567993616.333
+Timed mutex lock will block for 3 seconds starting from: 567993616.44444
+Timed mutex lock will block for 3 seconds starting from: 567993616.619999999
+Test Result:1.2112ns
+!!! RESULT: Test Case 5054:AS0100505GN_2 FAIL !!!
+
+
+
+Test Case 22002:AS0100505GN_3 starting ...!
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 1.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 2.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 3.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 4.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 5.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 6.
+Test Result:1.2112ms
+@@@ RESULT: Test Case 22002:AS0100505GN_3 PASS @@@
+
+
+Test Case 123021:AS0100505GN_4 starting ...!
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST PASS.
+@@@ RESULT: Test Case 123021:AS0100505GN_4 PASS @@@
+

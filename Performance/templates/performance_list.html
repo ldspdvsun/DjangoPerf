@@ -1,0 +1,463 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block css %}
+    <style>
+        .font_style {
+            text-align: center;
+            height: 40px;
+            vertical-align: center;
+        }
+
+        .font_test_threshold {
+            color: red; /* 将字体颜色设置为红色 */
+            font-weight: bold; /* 将字体加粗 */
+            background-color: yellow; /* 将背景颜色设置为黄色 */
+        }
+
+        .log-column {
+            overflow: auto; /* 当内容溢出时显示滚动条 */
+            max-height: 40px; /* 设置最大高度，超出部分将出现滚动条 */
+            max-width: 100px; /* 设置最大宽度，超出部分将出现滚动条 */
+        }
+
+    </style>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-datepicker/css/bootstrap-datepicker.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div style="margin-bottom: 10px">
+            <input id="btnAdd" type="button" value="新建测试结果" class="btn btn-success">
+            <div style="float: right;width: 300px;">
+                <form method="get">
+                    <div style="display: flex; flex-direction: row;">
+                        <div style="margin-right: 5px;">
+                            <input type="text" name="key_word" class="form-control" placeholder="关键词 a|b...">
+                        </div>
+                        <div>
+                            <button id="btnProcessLog" class="btn btn-default" type="submit">
+                                {#                                <span class="glyphicon glyphicon-ok" aria-hidden="true">ProcessLog</span>#}
+                                Processing Log
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- 测试结果列表 -->
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                测试结果列表
+            </div>
+
+            <table class="table table-bordered ">
+                <thead>
+                <tr>
+                    <th class="font_style">序号</th>
+                    <th class="font_style">测试时间</th>
+                    <th class="font_style">测试批次</th>
+                    <th class="font_style">厂商类别</th>
+                    <th class="font_style">测试厂商</th>
+                    <th class="font_style">测试平台</th>
+                    <th class="font_style">测试用例</th>
+                    <th class="font_style">测试日志</th>
+                    <th class="font_style">测试结果</th>
+                    <th class="font_style">测试用例阈值</th>
+                    <th class="font_style">测试人员</th>
+                    <th class="font_style">录入/修改时间</th>
+                    <th class="font_style">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in queryset %}
+                    <tr uid="{{ obj.id }}">
+                        <th class="font_style">{{ forloop.counter }}</th>
+                        <td class="font_style">{{ obj.get_year_display }}</td>
+                        <td class="font_style">{{ obj.get_batch_display }}</td>
+                        <td class="font_style">{{ obj.get_category_display }}</td>
+                        <td class="font_style">{{ obj.manufacturer.name }}</td>
+                        <td class="font_style">{{ obj.platform.name }}</td>
+                        <td class="font_style">{{ obj.test_case.test_case_id }}</td>
+
+                        <td class="font_style log-column">
+                            {% if obj.log %}
+                                {% with file_extension=obj.log.name|slice:"-3:"|lower %}
+                                    {% if 'png' in file_extension or 'jpg' in file_extension or 'jpeg' in file_extension or 'gif' in file_extension %}
+                                        <a href="#" class="file-preview-link"
+                                           data-file-url="{{ obj.log.url }}">{{ obj.log.name }}</a>
+                                    {% else %}
+                                        <a href="#" class="log-preview-link"
+                                           data-log-url="{{ obj.log.url }}">{{ obj.log.name }}</a>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+
+                        <td class="font_style
+                                            {% if obj.test_result > obj.test_threshold %}font_test_threshold{% endif %}">{{ obj.test_result }}</td>
+                        <td class="font_style
+                                            {% if obj.test_result > obj.test_threshold %}font_test_threshold{% endif %}">{{ obj.test_threshold }}</td>
+                        <td class="font_style">{{ obj.test_user.name }}</td>
+                        <td class="font_style">{{ obj.create_edit_time |date:"Y-m-d" }}</td>
+                        <td class="font_style">
+                            <input uid="{{ obj.id }}" type="button" class="btn btn-primary btn-xs btn-edit"
+                                   value="编辑">
+                            <input uid="{{ obj.id }}" class="btn btn-danger btn-xs btn-delete" type="button"
+                                   value="删除">
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <!-- 分页列表 -->
+        {{ page_string }}
+
+
+    </div>
+
+    <!-- 新建/编辑 （对话框） -->
+    <div class="modal fade" id="AddEditModal" tabindex="-1" role="dialog" aria-labelledby="AddEditModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="AddEditModalLabel">新建</h4>
+                </div>
+                <div class="modal-body">
+                    {# 页面数据展示表单 #}
+                    <form id="formAddEdit" novalidate enctype="multipart/form-data">
+                        <div class="clearfix">
+                            {% for field in form %}
+                                <div class="col-xs-6">
+                                    <div class="form-group" style="position: relative;margin-bottom: 20px;">
+                                        <label>{{ field.label }}</label>
+                                        {{ field }}
+                                        <span class="error-msg" style="color: red;position: absolute;"></span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                    <button id="btnSave" type="button" class="btn btn-primary">保 存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除（对话框） -->
+    <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="AddEditModalLabel">
+        <div class="modal-dialog" role="document">
+
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4>是否确定删除？</h4>
+                <p style="margin: 10px 0;"> 删除后，所有关联的相关数据都会被删除。</p>
+                <p style="text-align: right;">
+                    <button id="btnConfirmDelete" type="button" class="btn btn-danger">确 定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block js %}
+    <script type="text/javascript">
+        var DELETE_ID;
+        var EDIT_ID;
+
+        $(function () {
+            bindBtnAddEvent();
+            bindBtnSaveEvent();
+            bindBtnDeleteEvent();
+            bindBtnConfirmDeleteEvent();
+            bindBtnEditEvent();
+            bindBtnProcessLog();
+        })
+
+        // 新增
+        function bindBtnAddEvent() {
+            $("#btnAdd").click(function () {
+                // 将正在编辑的ID设置为空
+                EDIT_ID = undefined;
+
+                // 清空对话框中的数据
+                $("#formAddEdit")[0].reset();
+                $(".error-msg").empty();
+
+                // 设置对话框的标题
+                $("#AddEditModalLabel").text("新建");
+
+                // 点击新建按钮，显示对话框。
+                $('#AddEditModal').modal('show');
+            });
+        }
+
+        // 弹出框，保存
+        function bindBtnSaveEvent() {
+            $("#btnSave").click(function () {
+
+                // 清除错误信息
+                $(".error-msg").empty();
+
+                if (EDIT_ID) {
+                    // 编辑
+                    doEdit();
+                    $(".error-msg").empty();
+                } else {
+                    // 添加
+                    doAdd();
+                    $(".error-msg").empty();
+                }
+            });
+        }
+
+        function doEdit() {
+            // 创建一个 FormData 对象
+            var formData = new FormData($("#formAddEdit")[0]);
+
+            // 向后台发送请求（编辑的Ajax请求）
+            $.ajax({
+                url: "/performance/edit/" + "?uid=" + EDIT_ID,
+                type: "post",
+                data: formData, // 使用 FormData 对象
+                processData: false, // 不对数据进行处理
+                contentType: false, // 不设置内容类型
+                dataType: "JSON",
+                success: function (res) {
+                    if (res.status) {
+                        // 清空表单
+                        $("#formAddEdit")[0].reset();
+
+                        // 关闭对话框
+                        $('#AddEditModal').modal('hide');
+
+                        // 刷新页面
+                        location.reload();
+                    } else {
+                        if (res.tips) {
+                            alert(res.tips);
+                        } else {
+                            // 把错误信息显示在对话框中。
+                            $.each(res.error, function (name, errorList) {
+                                $("#id_" + name).next().text(errorList[0]);
+                            })
+                        }
+                    }
+                }
+            });
+        }
+
+        function doAdd() {
+            // 创建一个 FormData 对象
+            var formData = new FormData($("#formAddEdit")[0]);
+
+            // 清除错误信息
+            $(".error-msg").empty();
+
+            // 向后台发送请求（添加的Ajax请求）
+            $.ajax({
+                url: "/performance/add/",
+                type: "post",
+                data: formData, // 使用 FormData 对象
+                processData: false, // 不对数据进行处理
+                contentType: false, // 不设置内容类型
+                dataType: "JSON",
+                success: function (res) {
+                    if (res.status) {
+                        // 清空表单
+                        $("#formAddEdit")[0].reset();
+
+                        // 关闭对话框
+                        $('#AddEditModal').modal('hide');
+
+                        // 刷新页面
+                        location.reload();
+                    } else {
+                        // 把错误信息显示在对话框中。
+                        $.each(res.error, function (name, errorList) {
+                            $("#id_" + name).next().text(errorList[0]);
+                        })
+                    }
+                }
+            });
+        }
+
+        function bindBtnDeleteEvent() {
+            $(".btn-delete").click(function () {
+                // alert("点击了删除");
+                // 显示删除对话框
+                $("#DeleteModal").modal('show');
+
+                // 获取当前行的ID并赋值给全部变量。
+                DELETE_ID = $(this).attr("uid");
+            });
+        }
+
+        function bindBtnConfirmDeleteEvent() {
+            $("#btnConfirmDelete").click(function () {
+                $.ajax({
+                    url: "/performance/delete/",  //    => /performance/delete/?uid=123
+                    type: "GET",
+                    data: {
+                        uid: DELETE_ID
+                    },
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            // 隐藏删除框
+                            // $("#DeleteModal").modal('hide');
+                            // 在页面上将当前一行数据删除（js）
+                            // $("tr[uid='" + DELETE_ID + "']").remove();
+                            // 要删除的ID制空
+                            // DELETE_ID = 0;
+                            // 简单的思路：
+                            location.reload();
+                        } else {
+                            // 删除失败
+                            alert(res.error);
+                        }
+                    }
+                })
+            });
+        }
+
+        function bindBtnEditEvent() {
+            $(".btn-edit").click(function () {
+                // 清空对话框中的数据
+                $("#formAddEdit")[0].reset();
+                $(".error-msg").empty();
+
+                // 获取当前编辑数据的 ID
+                var uid = $(this).attr("uid");
+                EDIT_ID = uid;
+
+                // 发送Ajax去后端获取当前行的相关数据  /performance/detail/?uid=123
+                $.ajax({
+                    url: "/performance/detail/",
+                    type: "get",
+                    data: {
+                        uid: uid
+                    },
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            // 将数据赋值到对话框中的标签中。
+                            $.each(res.data, function (name, value) {
+                                var $inputField = $("#id_" + name);
+                                if ($inputField.attr("type") !== "file") {
+                                    $inputField.val(value);
+                                }
+                            });
+                            // 修改对话框的标题
+                            $("#AddEditModalLabel").text("编辑");
+
+                            // 点击编辑，显示对话框
+                            $('#AddEditModal').modal('show');
+                        } else {
+                            alert(res.error);
+                        }
+                    }
+                });
+            });
+        }
+
+        {# log 处理 #}
+        function bindBtnProcessLog() {
+            $("#btnProcessLog").click(function () {
+                // 获取输入框中的关键词值
+                var keyWord = $("input[name='key_word']").val();
+                console.log(keyWord);
+                $.ajax({
+                    url: "/performance/process_log/",
+                    type: "post",
+                    data: {
+                        "key_word": keyWord
+                    },
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            location.reload();
+                        } else {
+                            alert(res.error);
+                        }
+                    }
+                });
+            });
+        }
+
+
+    </script>
+
+    <script src="{% static 'plugins/bootstrap-datepicker/js/bootstrap-datepicker.js' %}"></script>
+    <script src="{% static 'plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js' %}"></script>
+    <script>
+        $(function () {
+            $('#id_create_edit_time').datepicker({
+                format: 'yyyy-mm-dd',
+                language: 'zh-CN',
+                autoclose: true
+            })
+        })
+        $("#id_log").change(function () {
+            var fileName = $(this).val().split("\\").pop();  // 获取文件名
+            $("#fileNameDisplay").val(fileName);  // 将文件名显示在文本框中
+        });
+
+        // Log文件预览处理
+        $(document).ready(function () {
+            // 绑定点击事件
+            $(".file-preview-link").click(function (event) {
+                event.preventDefault(); // 阻止默认行为
+                var fileUrl = $(this).data("file-url"); // 获取文件的URL
+                window.open(fileUrl, "_blank"); // 在新标签页中打开文件
+            });
+
+            // 绑定点击事件
+            $(".log-preview-link").click(function (event) {
+                event.preventDefault(); // 阻止默认行为
+                var logUrl = $(this).data("log-url"); // 获取日志文件的URL
+                previewLog(logUrl); // 调用预览日志文件的函数
+            });
+        });
+
+        // 预览日志文件的函数
+        function previewLog(logUrl) {
+            // 发送AJAX请求获取日志文件内容
+            $.ajax({
+                url: logUrl,
+                type: "GET",
+                dataType: "text",
+                success: function (logContent) {
+                    // 在新标签页中显示日志文件内容
+                    var win = window.open("", "_blank");
+                    win.document.write("<pre>" + logContent + "</pre>");
+                    win.document.close();
+                },
+                error: function (xhr, status, error) {
+                    console.error("Failed to fetch log file:", error);
+                    alert("Failed to fetch log file.");
+                }
+            });
+        }
+
+    </script>
+{% endblock %}

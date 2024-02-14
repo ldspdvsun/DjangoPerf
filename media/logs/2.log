@@ -1,0 +1,9 @@
+Test Case 22002:AS0100505GN_2 starting ...!
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 1.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 2.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 3.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 4.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 5.
+Locking unlocked mutexes in pthread_mutex_timedlock manner successful.TEST 6.
+Test Result:1.2112ms
+@@@ RESULT: Test Case 22002:AS0100505GN_2 PASS @@@

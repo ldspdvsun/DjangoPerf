@@ -1,0 +1,47 @@
+URL:https://www.bilibili.com/video/BV1NL41157ph/?spm_id_from=333.337.search-card.all.click&vd_source=2387a5b3445681e0441a448a2597b375
+
+
+创建django项目 django-admin startproject 项目名
+进入到django项目里 cd 项目名
+创建应用 django-admin startapp 应用名
+启动项目验证是否成功 python manage.py runserver
+python manage.py makemigrations # 创建数据库迁移文件
+python manage.py migrate # 根据数据库迁移文件生成对应 SQL 语句并执行
+python manage.py createsuperuser创建超级用户
+
+
+pip install E:\PycharmProjects\djangoDemo\app01\static\whl\mysqlclient-2.2.1-cp310-cp310-win_amd64.whl
+
+1. 数据库添加表
+(DjangoProject) PS E:\PycharmProjects\DjangoProject> python .\manage.py makemigrations
+Migrations for 'app':
+  app\migrations\0003_userinfo.py
+    - Create model UserInfo      
+2. 数据库同步
+(DjangoProject) PS E:\PycharmProjects\DjangoProject> python .\manage.py migrate
+Operations to perform:
+  Apply all migrations: admin, app, auth, contenttypes, sessions
+Running migrations:                                             
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying app.0001_initial... OK
+  Applying app.0002_entry... OK
+  Applying app.0003_userinfo... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying sessions.0001_initial... OK
+(DjangoProject) PS E:\PycharmProjects\DjangoProject> ^C
+(DjangoProject) PS E:\PycharmProjects\DjangoProject>

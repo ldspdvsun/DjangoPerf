@@ -1,0 +1,8 @@
+Test Case 5054:AS0100505GN_3 starting ...!
+Timed mutex lock will block for 3 seconds starting from: 567993616.1
+Timed mutex lock will block for 3 seconds starting from: 567993616.22
+Timed mutex lock will block for 3 seconds starting from: 567993616.333
+Timed mutex lock will block for 3 seconds starting from: 567993616.44444
+Timed mutex lock will block for 3 seconds starting from: 567993616.619999999
+Test Result:4.2112ns
+!!! RESULT: Test Case 5054:AS0100505GN_3 FAIL !!!
